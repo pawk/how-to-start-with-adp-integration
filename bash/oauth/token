@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# reference: https://developers.adp.com/articles/guides/auth-process-data-connector-apps?chapter=1
+
+if [ "$1" == "help" ]; then
+  echo "./$0 [<client_id>] [<client_secret>]"
+  exit 1
+fi
+
+# we're doing basic auth here, curl will build `Authorization: Basic base64(user:pass)` header for us
+
+curl -X POST \
+  -s \
+  -u ${1:-$ADP_PARTNER_CLIENT_ID}:${2:-$ADP_PARTNER_CLIENT_SECRET} \
+  --cert "$ADP_CERT_PATH" \
+  --key "$ADP_KEY_PATH" \
+  https://accounts.adp.com/auth/oauth/v2/token?grant_type=client_credentials \
+| grep access_token | sed 's/.*access_token":"\(.*\)",/\1/'

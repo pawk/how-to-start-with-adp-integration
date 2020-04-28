@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# for this to work you'd also need to provide a valid cert
+# reference: https://developers.adp.com/articles/api/consumer-application-subscription-credentials-v1-api
+
+if [ "$1" == "help" ] || [ $# -lt 1 ]; then
+  echo "./${0} <token>"
+  exit 1
+fi
+
+curl -X GET \
+  -s \
+  --cert "$ADP_CERT_PATH" \
+  --key "$ADP_KEY_PATH" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer $1" \
+  -H "roleCode: practitioner" \
+  https://api.adp.com/hr/v2/workers

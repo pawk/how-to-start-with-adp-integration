@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# for this to work you'd also need to provide a valid cert
+# reference: https://developers.adp.com/articles/api/consumer-application-subscription-credentials-v1-api
+
+if [ "$1" == "help" ] || [ $# -lt 1 ]; then
+  echo "./${0} <token> [<subscriptionOrganizationOID>]"
+  exit 1
+fi
+
+curl -X POST \
+  -s \
+  --cert "$ADP_CERT_PATH" \
+  --key "$ADP_KEY_PATH" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer $1" \
+  -H 'roleCode: practitioner' \
+  -d "{\"events\":[{\"serviceCategoryCode\":{\"codeValue\":\"core\"},\"eventNameCode\":{\"codeValue\":\"consumer-application-subscription-credential.read\"}, \
+      \"data\": { \
+        \"transform\": { \
+          \"queryParameter\": \"\$filter=subscriberOrganizationOID eq '${2:-$ADP_SANDBOX_ORGANIZATION_OID}'\" \
+        } \
+      }}]}" \
+  https://api.adp.com/events/core/v1/consumer-application-subscription-credentials.read \
+| sed 's/.*consumerApplicationSubscriptionCredentials":\[\([^]]*\)\].*/\1/'
